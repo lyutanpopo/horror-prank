@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#050000">
+<title>CRITICAL SYSTEM ERROR</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#050000;color:#ff2525;
+ font-family:Consolas,monospace;overflow:hidden;
+}
+#main{
+ min-height:100svh;padding:18px;
+ display:flex;flex-direction:column;justify-content:center;
+}
+h1{
+ font-size:clamp(28px,8vw,55px);
+ text-align:center;text-shadow:0 0 25px red;
+ animation:glitch .3s infinite;
+}
+#alert{
+ border:1px solid red;background:#190000;
+ padding:13px;text-align:center;
+ box-shadow:0 0 25px #8b0000;
+}
+#terminal{
+ height:37svh;min-height:180px;
+ overflow:hidden;background:#080000;
+ border:1px solid #720000;
+ margin-top:15px;padding:12px;
+ font-size:12px;line-height:1.65;
+ overflow-wrap:anywhere;
+}
+.log{animation:appear .12s}
+.danger{color:#ff2222;font-weight:bold}
+.normal{color:#ff8585}
+#progress{
+ width:100%;height:8px;background:#300000;
+ margin-top:15px;
+}
+#bar{height:100%;width:0;background:red;box-shadow:0 0 12px red}
+#status{text-align:center;font-size:12px}
+#scare{
+ display:none;position:fixed;inset:0;z-index:10;
+ background:#000;align-items:center;justify-content:center;
+}
+#scare img{
+ width:100%;height:100%;object-fit:cover;
+}
+#scareText{
+ position:absolute;color:white;font-size:clamp(24px,8vw,50px);
+ text-shadow:0 0 20px red;text-align:center;
+}
+#passwordPanel{
+ display:none;position:fixed;inset:0;z-index:20;
+ background:#050000f5;align-items:center;
+ justify-content:center;padding:20px;
+}
+.panel{
+ background:#170000;border:1px solid red;
+ padding:25px;width:100%;max-width:380px;
+ box-shadow:0 0 30px red;
+}
+input,button{font:inherit;padding:13px;width:100%;margin-top:12px}
+input{background:#080000;color:white;border:1px solid red}
+button{background:#a00000;color:white;border:1px solid red}
+#reveal{
+ display:none;position:fixed;inset:0;z-index:30;
+ background:#080000;color:white;
+ align-items:center;justify-content:center;
+ flex-direction:column;text-align:center;padding:20px;
+}
+#reveal h1{animation:none;color:#fff}
+#flash{
+ position:fixed;inset:0;background:red;
+ opacity:0;pointer-events:none;z-index:15;
+}
+.shake{animation:shake .08s infinite}
+@keyframes appear{
+ from{opacity:0;transform:translateX(-8px)}
+ to{opacity:1;transform:translateX(0)}
+}
+@keyframes glitch{
+ 0%,100%{transform:translate(0)}
+ 25%{transform:translate(3px,-2px)}
+ 50%{transform:translate(-3px,2px)}
+ 75%{transform:translate(2px,1px)}
+}
+@keyframes shake{
+ 0%,100%{transform:translate(0)}
+ 25%{transform:translate(6px,-5px)}
+ 50%{transform:translate(-6px,5px)}
+ 75%{transform:translate(5px,4px)}
+}
+</style>
+</head>
+<body>
+
+<div id="main">
+ <div id="alert">
+  <h1>CRITICAL ERROR</h1>
+  <p>SECURITY BREACH DETECTED</p>
+  <p class="danger">SYSTEM COMPROMISED</p>
+ </div>
+ <div id="terminal"></div>
+ <div id="progress"><div id="bar"></div></div>
+ <p id="status">INITIALIZING...</p>
+</div>
+
+<div id="scare">
+ <img src="ドッキリ.jpg">
+ <div id="scareText">YOU HAVE BEEN WARNED</div>
+</div>
+
+<div id="flash"></div>
+
+<div id="passwordPanel">
+ <div class="panel">
+  <h2>SECRET AUTHENTICATION</h2>
+  <p>管理者認証が必要です。</p>
+  <input id="password" type="password"
+   placeholder="PASSWORD" autocomplete="off">
+  <button id="unlock">UNLOCK</button>
+  <p id="error"></p>
+ </div>
+</div>
+
+<div id="reveal">
+ <h1>ドッキリでした！！</h1>
+ <p>びっくりした？</p>
+ <p>これは演出用の画面です。</p>
+ <p>情報の取得・記録・外部送信は一切していません。</p>
+</div>
+
+<script>
+const terminal=document.getElementById("terminal");
+const bar=document.getElementById("bar");
+const status=document.getElementById("status");
+const scare=document.getElementById("scare");
+const flash=document.getElementById("flash");
+
+const logs=[
+"INITIALIZING SECURITY PROTOCOL...",
+"WARNING: UNKNOWN PROCESS DETECTED",
+"ACCESS CONTROL FAILURE",
+"SIMULATED DATA EXPOSURE ALERT",
+"CRITICAL ERROR: SYSTEM INTEGRITY LOST",
+"ENCRYPTION STATUS: UNKNOWN",
+"WARNING: UNAUTHORIZED SESSION",
+"SIMULATED FILE ACCESS: BLOCKED",
+"SECURITY FIREWALL: ERROR",
+"CONNECTION STATUS: UNSTABLE",
+"CRITICAL FAILURE DETECTED",
+"EMERGENCY LOCKDOWN INITIATED",
+"!!! SYSTEM FAILURE !!!"
+];
+
+let index=0;
+let progress=0;
+let sequence="";
+let finished=false;
+
+function addLog(){
+ if(index>=logs.length){
+  setTimeout(jumpScare,350);
+  return;
+ }
+
+ const line=document.createElement("div");
+ line.className="log "+(index%3===0?"danger":"normal");
+ line.textContent="["+new Date().toLocaleTimeString()+"] "+logs[index];
+ terminal.appendChild(line);
+ terminal.scrollTop=terminal.scrollHeight;
+
+ index++;
+ progress=Math.min(100,index/logs.length*100);
+ bar.style.width=progress+"%";
+
+ status.textContent=
+  index<logs.length?"SYSTEM FAILURE PROGRESS: "+Math.floor(progress)+"%":"CRITICAL FAILURE";
+
+ if(index>=5){
+  document.body.classList.add("shake");
+  flash.style.opacity=".12";
+  setTimeout(()=>flash.style.opacity="0",100);
+ }
+
+ setTimeout(addLog,index<5?220:90);
+}
+
+function jumpScare(){
+ if(finished)return;
+ finished=true;
+ document.body.classList.add("shake");
+ scare.style.display="flex";
+ flash.style.opacity=".9";
+ setTimeout(()=>flash.style.opacity="0",180);
+ status.textContent="SIMULATION: HORROR EVENT";
+}
+
+document.addEventListener("keydown",e=>{
+ if(!finished)return;
+ if(e.ctrlKey||e.altKey||e.metaKey||e.key.length!==1)return;
+ sequence+=e.key.toUpperCase();
+ sequence=sequence.slice(-6);
+ if(sequence==="KAGUYA"){
+  document.getElementById("passwordPanel").style.display="flex";
+  document.getElementById("password").focus();
+  sequence="";
+ }
+});
+
+function unlock(){
+ const value=document.getElementById("password").value;
+ if(value==="かぐやかわいい"){
+  scare.style.display="none";
+  document.getElementById("passwordPanel").style.display="none";
+  document.getElementById("main").style.display="none";
+  flash.style.display="none";
+  document.body.classList.remove("shake");
+  document.getElementById("reveal").style.display="flex";
+ }else{
+  document.getElementById("error").textContent="認証失敗";
+ }
+}
+document.getElementById("unlock").addEventListener("click",unlock);
+document.getElementById("password").addEventListener("keydown",e=>{
+ if(e.key==="Enter")unlock();
+});
+
+addLog();
+</script>
+</body>
+</html>
